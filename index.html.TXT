@@ -5,42 +5,80 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>歌单上传工具</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 2rem; background: #f7f7f7; }
-    h1 { color: #333; }
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; display: none; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background-color: #eee; }
-    #uploadBtn { margin-top: 1rem; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f7f7f7;
+    }
+    h1 {
+      color: #333;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #eee;
+    }
+    #uploadBtn {
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
   <h1>🎵 歌单上传工具</h1>
   <input type="file" id="fileInput" accept=".csv">
   <button id="uploadBtn">上传并显示</button>
-  <table id="playlistTable">
+  
+  <table id="playlistTable" style="display:none">
     <thead></thead>
     <tbody></tbody>
   </table>
+
   <script>
     document.getElementById('uploadBtn').addEventListener('click', () => {
-      const file = document.getElementById('fileInput').files[0];
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+
       if (!file) return alert('请先选择一个CSV文件');
+
       const reader = new FileReader();
-      reader.onload = (e) => {
-        const lines = e.target.result.trim().split('\n');
+      reader.onload = function(e) {
+        const text = e.target.result;
+        const lines = text.trim().split('\n');
         const headers = lines[0].split(',');
+
         const table = document.getElementById('playlistTable');
         const thead = table.querySelector('thead');
         const tbody = table.querySelector('tbody');
-        thead.innerHTML = ''; tbody.innerHTML = '';
-        const headRow = document.createElement('tr');
-        headers.forEach(h => { const th = document.createElement('th'); th.textContent = h; headRow.appendChild(th); });
-        thead.appendChild(headRow);
-        lines.slice(1).forEach(line => {
-          const tr = document.createElement('tr');
-          line.split(',').forEach(c => { const td = document.createElement('td'); td.textContent = c; tr.appendChild(td); });
-          tbody.appendChild(tr);
+        thead.innerHTML = '';
+        tbody.innerHTML = '';
+
+        const headerRow = document.createElement('tr');
+        headers.forEach(h => {
+          const th = document.createElement('th');
+          th.textContent = h;
+          headerRow.appendChild(th);
         });
+        thead.appendChild(headerRow);
+
+        for (let i = 1; i < lines.length; i++) {
+          const row = document.createElement('tr');
+          const cells = lines[i].split(',');
+          cells.forEach(c => {
+            const td = document.createElement('td');
+            td.textContent = c;
+            row.appendChild(td);
+          });
+          tbody.appendChild(row);
+        }
+
         table.style.display = 'table';
       };
       reader.readAsText(file);
